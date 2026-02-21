@@ -2,25 +2,24 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { Helmet } from 'react-helmet-async';
 
 const API_BASE = process.env.REACT_APP_API_URL;
 
 function NewsPage() {
   const { id } = useParams();
   const [news, setNews] = useState(null);
-  const [likes, setLikes] = useState(0);
   const [newComment, setNewComment] = useState("");
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [userName, setUserName] = useState("");
   const commentsEndRef = useRef(null);
 
-  // Fetch single news (with comments + likes)
+  // Fetch single news (with comments)
   useEffect(() => {
     const fetchNews = async () => {
       try {
         const res = await axios.get(`${API_BASE}/api/news/${id}`);
         setNews(res.data);
-        setLikes(res.data.likes || 0); // ✅ always use backend likes
       } catch (err) {
         console.error("Error fetching news:", err);
       }
@@ -63,17 +62,6 @@ function NewsPage() {
 
   if (!news) return <p>लोड होत आहे...</p>;
 
-  // ✅ Persist likes to backend
-  const handleLike = async () => {
-    try {
-      const res = await axios.post(`${API_BASE}/api/news/${id}/like`);
-      setLikes(res.data.likes); // backend returns updated count
-    } catch (err) {
-      console.error("Error liking news:", err);
-      setLikes(likes + 1); // fallback
-    }
-  };
-
   const handleCommentSubmit = (e) => {
     e.preventDefault();
     if (newComment.trim() !== "") {
@@ -89,7 +77,6 @@ function NewsPage() {
           name: userName,
           text: newComment
         });
-        // refresh with updated comments
         const res = await axios.get(`${API_BASE}/api/news/${id}`);
         setNews(res.data);
         setNewComment("");
@@ -103,6 +90,21 @@ function NewsPage() {
 
   return (
     <div className="container my-4 position-relative" style={{ fontFamily: "'Tiro Devanagari Marathi', serif" }}>
+      {/* ✅ Dynamic Open Graph Meta Tags */}
+      <Helmet>
+        <title>{news.title}</title>
+        <meta property="og:title" content={news.title} />
+        <meta property="og:description" content={news.content.substring(0, 100)} />
+        <meta property="og:image" content={news.imageUrl} />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:type" content="article" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={news.title} />
+        <meta name="twitter:description" content={news.content.substring(0, 100)} />
+        <meta name="twitter:image" content={news.imageUrl} />
+      </Helmet>
+
       {/* Watermark overlay */}
       <div style={{
         position: "absolute",
@@ -139,20 +141,8 @@ function NewsPage() {
         {news.content}
       </p>
 
-      {/* Likes + Social Share */}
+      {/* Social Share */}
       <div className="mt-4 d-flex align-items-center gap-3 flex-wrap">
-        <button 
-          onClick={handleLike} 
-          className="btn btn-light shadow-sm rounded-circle" 
-          style={{ width: '55px', height: '55px', fontSize: '1.5rem', color: '#E74C3C' }}
-        >
-          ❤️
-        </button>
-        <span className="fw-bold" style={{ fontFamily: "'Baloo 2', cursive" }}>
-          {likes} Likes
-        </span>
-
-        {/* Social media share buttons */}
         <a href={`https://wa.me/?text=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="btn btn-success rounded-pill">WhatsApp</a>
         <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="btn btn-primary rounded-pill">Facebook</a>
         <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}`} target="_blank" rel="noopener noreferrer" className="btn btn-info rounded-pill text-white">Twitter</a>
