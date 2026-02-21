@@ -1,3 +1,4 @@
+// frontend/src/pages/Admin.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -172,7 +173,46 @@ function Admin() {
 
       {/* Upload Section */}
       <form onSubmit={editingNews ? handleUpdate : handleSubmit}>
-        {/* ... your existing upload form code ... */}
+        <div className="mb-3">
+          <input
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="form-control"
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <textarea
+            placeholder="Content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="form-control"
+            rows="3"
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+            className="form-control"
+          />
+        </div>
+        <div className="mb-3">
+          <input
+            type="text"
+            placeholder="संपादक"
+            value={sampadak}
+            onChange={(e) => setSampadak(e.target.value)}
+            className="form-control"
+          />
+        </div>
+        <button type="submit" className="btn btn-success">
+          {editingNews ? "Update News" : "Post News"}
+        </button>
       </form>
 
       {/* Manage Section */}
