@@ -1,3 +1,4 @@
+// frontend/src/pages/NewsPage.js
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -66,6 +67,26 @@ function NewsPage() {
     }
   };
 
+  // ✅ Share option
+  const handleShare = async () => {
+    const shareData = {
+      title: news.title,
+      text: news.content.substring(0, 100) + "...",
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("🔗 Link copied to clipboard!");
+      }
+    } catch (err) {
+      console.error("Error sharing:", err);
+    }
+  };
+
   return (
     <div className="container my-4" style={{ fontFamily: "'Tiro Devanagari Marathi', serif" }}>
       {/* Headline */}
@@ -88,8 +109,8 @@ function NewsPage() {
       {/* Content */}
       <p style={{ fontSize: '1.1rem', color: '#333' }}>{news.content}</p>
 
-      {/* Likes */}
-      <div className="mt-4">
+      {/* Likes + Share */}
+      <div className="mt-4 d-flex align-items-center gap-3">
         <button 
           onClick={handleLike} 
           className="btn btn-light shadow-sm" 
@@ -97,9 +118,15 @@ function NewsPage() {
         >
           ❤️
         </button>
-        <span style={{ marginLeft: '10px', fontWeight: 'bold', fontFamily: "'Baloo 2', cursive" }}>
+        <span style={{ fontWeight: 'bold', fontFamily: "'Baloo 2', cursive" }}>
           {likes} Likes
         </span>
+        <button 
+          onClick={handleShare} 
+          className="btn btn-outline-primary rounded-pill"
+        >
+          🔗 Share
+        </button>
       </div>
 
       {/* Comments */}
