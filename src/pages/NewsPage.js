@@ -8,18 +8,19 @@ const API_BASE = process.env.REACT_APP_API_URL;
 function NewsPage() {
   const { id } = useParams();
   const [news, setNews] = useState(null);
-  const [likes, setLikes] = useState(50);
+  const [likes, setLikes] = useState(0);
   const [newComment, setNewComment] = useState("");
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [userName, setUserName] = useState("");
   const commentsEndRef = useRef(null);
 
-  // Fetch single news (with comments)
+  // Fetch single news (with comments + likes)
   useEffect(() => {
     const fetchNews = async () => {
       try {
         const res = await axios.get(`${API_BASE}/api/news/${id}`);
         setNews(res.data);
+        setLikes(res.data.likes || 0); // ✅ always use backend likes
       } catch (err) {
         console.error("Error fetching news:", err);
       }
@@ -34,10 +35,43 @@ function NewsPage() {
     }
   }, [news]);
 
+  // Block right-click (copy prevention)
+  useEffect(() => {
+    const handleContextMenu = (e) => e.preventDefault();
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
+
+  // Detect screenshot keys (PrintScreen, Ctrl+Shift+S)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "PrintScreen" || (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "s")) {
+        document.body.style.filter = "blur(5px)";
+        setTimeout(() => {
+          document.body.style.filter = "none";
+        }, 2000);
+        alert("⚠️ Screenshots are discouraged on this site.");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   if (!news) return <p>लोड होत आहे...</p>;
 
-  const handleLike = () => {
-    setLikes(likes + 1);
+  // ✅ Persist likes to backend
+  const handleLike = async () => {
+    try {
+      const res = await axios.post(`${API_BASE}/api/news/${id}/like`);
+      setLikes(res.data.likes); // backend returns updated count
+    } catch (err) {
+      console.error("Error liking news:", err);
+      setLikes(likes + 1); // fallback
+    }
   };
 
   const handleCommentSubmit = (e) => {
@@ -68,7 +102,21 @@ function NewsPage() {
   };
 
   return (
-    <div className="container my-4" style={{ fontFamily: "'Tiro Devanagari Marathi', serif" }}>
+    <div className="container my-4 position-relative" style={{ fontFamily: "'Tiro Devanagari Marathi', serif" }}>
+      {/* Watermark overlay */}
+      <div style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        fontSize: "4rem",
+        opacity: 0.05,
+        pointerEvents: "none",
+        fontWeight: "bold"
+      }}>
+        Daksh 24 News
+      </div>
+
       {/* Headline */}
       <h2 style={{ color: '#212121', fontFamily: "'Baloo 2', cursive", fontWeight: 'bold', fontSize: '2rem' }}>
         {news.title}
@@ -76,72 +124,45 @@ function NewsPage() {
 
       {/* Image */}
       {news.imageUrl && (
-        <img src={news.imageUrl} alt="news" className="img-fluid my-3" style={{ borderRadius: '8px' }} />
+        <img src={news.imageUrl} alt="news" className="img-fluid my-3 rounded" />
       )}
 
       {/* Sampadak */}
       {news.sampadak && (
-        <p style={{ fontStyle: 'italic', color: '#555', marginBottom: '10px' }}>
+        <p className="fst-italic text-muted mb-2">
           संपादक: {news.sampadak}
         </p>
       )}
 
-      {/* Content */}
-      <p style={{ fontSize: '1.1rem', color: '#333' }}>{news.content}</p>
+      {/* Content (no-select to block copy) */}
+      <p style={{ fontSize: '1.1rem', color: '#333', userSelect: "none" }}>
+        {news.content}
+      </p>
 
       {/* Likes + Social Share */}
       <div className="mt-4 d-flex align-items-center gap-3 flex-wrap">
         <button 
           onClick={handleLike} 
-          className="btn btn-light shadow-sm" 
-          style={{ width: '55px', height: '55px', borderRadius: '50%', fontSize: '1.5rem', color: '#E74C3C' }}
+          className="btn btn-light shadow-sm rounded-circle" 
+          style={{ width: '55px', height: '55px', fontSize: '1.5rem', color: '#E74C3C' }}
         >
           ❤️
         </button>
-        <span style={{ fontWeight: 'bold', fontFamily: "'Baloo 2', cursive" }}>
+        <span className="fw-bold" style={{ fontFamily: "'Baloo 2', cursive" }}>
           {likes} Likes
         </span>
 
         {/* Social media share buttons */}
-        <a 
-          href={`https://wa.me/?text=${encodeURIComponent(window.location.href)}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="btn btn-success rounded-pill"
-        >
-          WhatsApp
-        </a>
-        <a 
-          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="btn btn-primary rounded-pill"
-        >
-          Facebook
-        </a>
-        <a 
-          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="btn btn-info rounded-pill"
-          style={{ color: 'white' }}
-        >
-          Twitter
-        </a>
-        <a 
-          href={`https://www.instagram.com/?url=${encodeURIComponent(window.location.href)}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="btn btn-danger rounded-pill"
-        >
-          Instagram
-        </a>
+        <a href={`https://wa.me/?text=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="btn btn-success rounded-pill">WhatsApp</a>
+        <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="btn btn-primary rounded-pill">Facebook</a>
+        <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}`} target="_blank" rel="noopener noreferrer" className="btn btn-info rounded-pill text-white">Twitter</a>
+        <a href={`https://www.instagram.com/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="btn btn-danger rounded-pill">Instagram</a>
       </div>
 
       {/* Comments */}
       <div className="mt-3">
-        <h5 style={{ fontFamily: "'Baloo 2', cursive", fontWeight: 'bold' }}>आपले मत द्या:</h5>
-        <form onSubmit={handleCommentSubmit} style={{ display: 'flex', gap: '10px' }}>
+        <h5 className="fw-bold" style={{ fontFamily: "'Baloo 2', cursive" }}>आपले मत द्या:</h5>
+        <form onSubmit={handleCommentSubmit} className="d-flex gap-2">
           <input 
             type="text" 
             value={newComment} 
@@ -149,7 +170,7 @@ function NewsPage() {
             placeholder="आपली प्रतिक्रिया लिहा..." 
             className="form-control rounded-pill shadow-sm"
           />
-          <button type="submit" className="btn btn-primary rounded-pill"> Comment </button>
+          <button type="submit" className="btn btn-primary rounded-pill">Comment</button>
         </form>
         <ul className="mt-3 list-group">
           {news.comments && news.comments.map((c) => (
