@@ -19,7 +19,7 @@ function Footer() {
 
           {/* Quick Links */}
           <div className="col-md-4">
-            <h6></h6>
+            <h6 style={{ fontFamily: "'Baloo 2', cursive", fontWeight: 'bold' }}>Quick Links</h6>
             <ul style={{ listStyle: 'none', padding: 0 }}>
               <li><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>मुखपृष्ठ</a></li>
               <li><a href="/admin" style={{ color: '#fff', textDecoration: 'none' }}>प्रशासन</a></li>
@@ -29,7 +29,7 @@ function Footer() {
 
           {/* Social Media */}
           <div className="col-md-4">
-            <h6>सोशल मीडिया</h6>
+            <h6 style={{ fontFamily: "'Baloo 2', cursive", fontWeight: 'bold' }}>सोशल मीडिया</h6>
             <div style={{ display: 'flex', gap: '12px' }}>
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', fontSize: '1.2rem' }}>
                 <i className="fab fa-facebook-f"></i>

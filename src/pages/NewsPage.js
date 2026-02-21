@@ -15,17 +15,16 @@ function NewsPage() {
 
   // Fetch single news (with comments)
   useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/api/news/${id}`);
+        setNews(res.data);
+      } catch (err) {
+        console.error("Error fetching news:", err);
+      }
+    };
     fetchNews();
   }, [id]);
-
-  const fetchNews = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/api/news/${id}`);
-      setNews(res.data);
-    } catch (err) {
-      console.error("Error fetching news:", err);
-    }
-  };
 
   // Auto-scroll to latest comment
   useEffect(() => {
@@ -35,8 +34,6 @@ function NewsPage() {
   }, [news]);
 
   if (!news) return <p>लोड होत आहे...</p>;
-
-  const currentUrl = window.location.href;
 
   const handleLike = () => {
     setLikes(likes + 1);
@@ -57,7 +54,9 @@ function NewsPage() {
           name: userName,
           text: newComment
         });
-        await fetchNews(); // refresh with updated comments
+        // refresh with updated comments
+        const res = await axios.get(`${API_BASE}/api/news/${id}`);
+        setNews(res.data);
         setNewComment("");
         setUserName("");
         setShowNamePrompt(false);

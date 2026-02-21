@@ -5,7 +5,6 @@ import axios from 'axios';
 
 const API_BASE = process.env.REACT_APP_API_URL;
 
-
 function Navbar() {
   const [date, setDate] = useState('');
   const [news, setNews] = useState([]);
@@ -24,7 +23,7 @@ function Navbar() {
 
   useEffect(() => {
     axios
-      .get(`${API_BASE}/api/news`) 
+      .get(`${API_BASE}/api/news`)
       .then((res) => setNews(res.data))
       .catch((err) => console.error('Error fetching news:', err));
   }, []);
@@ -98,9 +97,16 @@ function Navbar() {
           color: '#fff',
           padding: '5px',
           fontFamily: "'Tiro Devanagari Marathi', serif",
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
         }}
       >
-        <marquee behavior="scroll" direction="left">
+        <div
+          style={{
+            display: 'inline-block',
+            animation: 'scroll-left 20s linear infinite',
+          }}
+        >
           {news.map((item, index) => (
             <span key={item._id}>
               <Link
@@ -116,7 +122,7 @@ function Navbar() {
               {index < news.length - 1 && ' | '}
             </span>
           ))}
-        </marquee>
+        </div>
       </div>
 
       {/* Scrolling Ads/Announcements */}
@@ -126,17 +132,34 @@ function Navbar() {
           color: '#000',
           padding: '5px',
           fontFamily: "'Baloo 2', cursive",
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
         }}
       >
-        <marquee behavior="scroll" direction="left">
-        जाहिरातीसाठी संपर्क &nbsp;:&nbsp; शब्बीर इनामदार 
-        &nbsp; &nbsp;| &nbsp;&nbsp;&nbsp; 📞 9881642086 
-        &nbsp; &nbsp;| &nbsp;&nbsp;&nbsp; <a href="https://wa.me/919881642086" target="_blank">🟢 WhatsApp</a> 
-        &nbsp; &nbsp;| &nbsp;&nbsp;&nbsp; विशेष ऑफर 
-        &nbsp; &nbsp;| &nbsp;&nbsp;&nbsp; आपल्या व्यवसायाची जाहिरात येथे करा..
-
-        </marquee>
+        <div
+          style={{
+            display: 'inline-block',
+            animation: 'scroll-left 25s linear infinite',
+          }}
+        >
+          जाहिरातीसाठी संपर्क &nbsp;:&nbsp; शब्बीर इनामदार 
+          &nbsp; &nbsp;| &nbsp;&nbsp;&nbsp; 📞 9881642086 
+          &nbsp; &nbsp;| &nbsp;&nbsp;&nbsp; 
+          <a href="https://wa.me/919881642086" target="_blank" rel="noopener noreferrer">🟢 WhatsApp</a> 
+          &nbsp; &nbsp;| &nbsp;&nbsp;&nbsp; विशेष ऑफर 
+          &nbsp; &nbsp;| &nbsp;&nbsp;&nbsp; आपल्या व्यवसायाची जाहिरात येथे करा..
+        </div>
       </div>
+
+      {/* CSS animation */}
+      <style>
+        {`
+          @keyframes scroll-left {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
+          }
+        `}
+      </style>
     </div>
   );
 }

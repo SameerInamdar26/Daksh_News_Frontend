@@ -148,7 +148,7 @@ function Admin() {
           </div>
           <div className="mb-3">
             <input
-              type="text"
+              type="password"
               className="form-control"
               placeholder="Password"
               value={password}
