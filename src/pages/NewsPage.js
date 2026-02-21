@@ -90,7 +90,7 @@ function NewsPage() {
 
   return (
     <div className="container my-4 position-relative" style={{ fontFamily: "'Tiro Devanagari Marathi', serif" }}>
-      {/* ✅ Dynamic Open Graph Meta Tags */}
+      {/* ✅ Dynamic Open Graph Meta Tags
       <Helmet>
         <title>{news.title}</title>
         <meta property="og:title" content={news.title} />
@@ -103,7 +103,7 @@ function NewsPage() {
         <meta name="twitter:title" content={news.title} />
         <meta name="twitter:description" content={news.content.substring(0, 100)} />
         <meta name="twitter:image" content={news.imageUrl} />
-      </Helmet>
+      </Helmet> */}
 
       {/* Watermark overlay */}
       <div style={{
