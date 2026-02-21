@@ -1,9 +1,14 @@
+// frontend/src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import NewsList from './components/NewsList'; // ✅ optional direct use if needed
+
+// Pages
 import Home from './pages/Home';
 import NewsPage from './pages/NewsPage';
 import Admin from './pages/Admin';
