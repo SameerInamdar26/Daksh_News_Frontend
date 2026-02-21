@@ -6,7 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import NewsList from './components/NewsList'; // ✅ optional direct use if needed
 
 // Pages
 import Home from './pages/Home';
