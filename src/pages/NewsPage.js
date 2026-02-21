@@ -67,26 +67,6 @@ function NewsPage() {
     }
   };
 
-  // ✅ Share option
-  const handleShare = async () => {
-    const shareData = {
-      title: news.title,
-      text: news.content.substring(0, 100) + "...",
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        alert("🔗 Link copied to clipboard!");
-      }
-    } catch (err) {
-      console.error("Error sharing:", err);
-    }
-  };
-
   return (
     <div className="container my-4" style={{ fontFamily: "'Tiro Devanagari Marathi', serif" }}>
       {/* Headline */}
@@ -109,8 +89,8 @@ function NewsPage() {
       {/* Content */}
       <p style={{ fontSize: '1.1rem', color: '#333' }}>{news.content}</p>
 
-      {/* Likes + Share */}
-      <div className="mt-4 d-flex align-items-center gap-3">
+      {/* Likes + Social Share */}
+      <div className="mt-4 d-flex align-items-center gap-3 flex-wrap">
         <button 
           onClick={handleLike} 
           className="btn btn-light shadow-sm" 
@@ -121,12 +101,41 @@ function NewsPage() {
         <span style={{ fontWeight: 'bold', fontFamily: "'Baloo 2', cursive" }}>
           {likes} Likes
         </span>
-        <button 
-          onClick={handleShare} 
-          className="btn btn-outline-primary rounded-pill"
+
+        {/* Social media share buttons */}
+        <a 
+          href={`https://wa.me/?text=${encodeURIComponent(window.location.href)}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="btn btn-success rounded-pill"
         >
-          🔗 Share
-        </button>
+          WhatsApp
+        </a>
+        <a 
+          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="btn btn-primary rounded-pill"
+        >
+          Facebook
+        </a>
+        <a 
+          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="btn btn-info rounded-pill"
+          style={{ color: 'white' }}
+        >
+          Twitter
+        </a>
+        <a 
+          href={`https://www.instagram.com/?url=${encodeURIComponent(window.location.href)}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="btn btn-danger rounded-pill"
+        >
+          Instagram
+        </a>
       </div>
 
       {/* Comments */}
